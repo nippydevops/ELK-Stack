@@ -1,0 +1,14 @@
+input {
+  exec {
+    command => "df -h"
+    interval => 30
+  }
+}
+
+output {
+ elasticsearch {
+   hosts => "10.100.76.90:9200"
+   index => "new1-%{+YYYY.MM.dd}"
+ }
+stdout { codec => rubydebug }
+}

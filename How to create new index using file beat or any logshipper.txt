@@ -1,0 +1,17 @@
+By default all logshipper will have same index as the name
+for filebeat the index is filebeat
+for metricbeat the index is metricbeat
+for heartbeat the index is heartbeat
+
+
+If you want to change the default index
+Pls make the below entries to config file 
+
+output.elasticsearch:
+  # Array of hosts to connect to.
+  hosts: ["10.100.76.90:9200", "10.100.76.91", "10.100.76.224"]
+  index: "zic-metricbeat-%{+yyyy.MM.dd}"
+setup.template:
+  name: 'zic-metricbeat'
+  pattern: 'zic-metricbeat-*'
+  enabled: false

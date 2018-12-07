@@ -1,0 +1,8 @@
+How to enable multiline in filebeat 
+Below are the line we need to add to filebeat.yml
+
+
+### Multiline options
+  multiline.pattern: '^\<'
+  multiline.negate: true
+  multiline.match: after 

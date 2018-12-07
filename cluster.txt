@@ -1,0 +1,139 @@
+Few points to remember about elasticsearch
+Port 9300 to talk to other port in elasticsearch
+
+it increases throghput same search on same data.
+cluster
+nodes
+shards    index
+documents 
+
+
+Green : all primary and replica shards allocated
+
+
+
+yellow: all primary shards allocated 
+one or more replica are unallocated.
+
+
+RED: one or more primary shards unallocated.
+
+
+Node type 
+Master eligible.
+  creating/deleting index
+  tracking cluster members
+   shards allocation
+
+Data 
+CRUD operation 
+contains shard
+
+Ingest :pipeline basic
+
+Co-ordinating-only Node
+  Routes requests
+  handles searcg reducing
+  Distributes bulk indexing.
+
+Machine Learning node
+
+
+
+Cluster Creation
+
+
+
+tomorrow
+Cluster Name is given
+Step 1 - swapoff is needed.
+node.name: master
+node.master: true
+node.data:false
+data and log path
+repo path needs to be managed as well.
+
+
+
+
+
+node1    master 
+
+
+node2   data+master
+node2   Data
+
+_local_
+_site_
+
+
+$ sudo sysctl -w vm.max_map_count=262144
+$ sudo sysctl -p
+
+strap.mlockall: true
+
+
+How to check cluster status :
+http://192.168.0.108:9200/_cluster/health?pretty=true
+_cluster/state
+_cluster/pending_tasks
+_nodes/stats
+
+_cat/nodes
+
+
+
+cluster status
+curl -XGET http://192.168.0.110:9200/_cluster/health?pretty
+
+
+Shards status :
+http://192.168.0.110:9200/_cat/shards?v
+
+recovry shards:
+curl -XGET http://192.168.0.108:9200/_cat/shards | grep UNASSIGNED | awk '{print $2}
+
+
+
+userful script:
+for shard in $(curl -XGET http://localhost:9200/_cat/shards | grep UNASSIGNED | awk '{print $2}'); do
+    curl -XPOST 'localhost:9200/_cluster/reroute' -d '{
+        "commands" : [ {
+              "allocate" : {
+                  "index" : "t37", 
+                  "shard" : $shard, 
+                  "node" : "datanode15", 
+                  "allow_primary" : true
+              }
+            }
+        ]
+    }'
+    sleep 5
+done
+
+https://thoughts.t37.net/how-to-fix-your-elasticsearch-cluster-stuck-in-initializing-shards-mode-ce196e20ba95
+
+
+https://www.datadoghq.com/blog/elasticsearch-unassigned-shards/
+
+
+
+
+output.elasticsearch:
+  # Array of hosts to connect to.
+  hosts: ["192.168.0.108:9200", "192.168.0.109:9200", "192.168.0.111"]
+
+
+
+kibana issue :
+https://discuss.elastic.co/t/is-i-possible-to-set-kibana-to-use-multiple-elasticsearch-nodes/66475
+
+
+
+elasticsearch.yml
+discovery.zen.ping.unicast.hosts: ["master", "node1", "node2"]
+discovery.zen.minimum_master_nodes: 2
+
+
+node.name: master
+node.data: false
